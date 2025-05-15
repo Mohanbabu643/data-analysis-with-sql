@@ -1,0 +1,47 @@
+-- 1. Select top 10 products by revenue
+SELECT product_name, SUM(total_amount) AS revenue
+FROM orders
+GROUP BY product_name
+ORDER BY revenue DESC
+LIMIT 10;
+
+
+-- 2. Orders placed in January 2023
+SELECT * FROM orders
+WHERE order_date BETWEEN '2023-01-01' AND '2023-01-31'
+ORDER BY order_date;
+
+
+-- 3. Get customer names with their order total
+SELECT c.customer_name, o.order_id, o.total_amount
+FROM customers c
+INNER JOIN orders o ON c.customer_id = o.customer_id;
+
+
+-- 4. Customers who spent more than average
+SELECT customer_id, customer_name
+FROM customers
+WHERE customer_id IN (
+    SELECT customer_id
+    FROM orders
+    GROUP BY customer_id
+    HAVING SUM(total_amount) > (SELECT AVG(total_amount) FROM orders)
+);
+
+
+-- 5. Total revenue and average order value
+SELECT COUNT(order_id) AS total_orders, 
+       SUM(total_amount) AS total_revenue, 
+       AVG(total_amount) AS avg_order_value
+FROM orders;
+
+
+-- 6. Create a view for customer order summary
+CREATE VIEW customer_order_summary AS
+SELECT customer_id, COUNT(order_id) AS total_orders, SUM(total_amount) AS total_spent
+FROM orders
+GROUP BY customer_id;
+
+
+-- 7. Create index on customer_id in orders table
+CREATE INDEX idx_customer_id ON orders(customer_id);
